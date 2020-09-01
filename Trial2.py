@@ -7,9 +7,11 @@ import sys
 
 import pandas as pd
 
+import pylab as pl
+
 cycles = 100
 #how manu turns there is
-turns = 50
+turns = 5
 players = 5
 
 
@@ -43,7 +45,7 @@ for c in range(cycles):
 		# https://stackoverflow.com/a/28952971/5531122
 		#game_owning[::,i] = -1
 		owned_simple[c][i] = -1
-print(owned_simple)
+#print(owned_simple)
 
 for c in range(cycles):
 	
@@ -56,7 +58,7 @@ for c in range(cycles):
 
 	for i in range(players):
 		all_players[i][0] = i+1
-	print(all_players)
+	#print(all_players)
 
 	# are out of jail cards avaliable
 	aval_chance_card = 1
@@ -68,12 +70,12 @@ for c in range(cycles):
 	thrown_double = 0
 	while c_turn < turns:
 		for i in range(players):
-			print(all_players[i])
+			#print(all_players[i])
 			thrown_double = 0
 
 			while thrown_double < 4:
 				move = throw_dice()
-				print(move)
+				#print(move)
 				#not in jail
 				if all_players[i][2] == 0:
 					all_players[i][1] += move[1]	
@@ -86,14 +88,14 @@ for c in range(cycles):
 						all_players[i][2] = 0
 						#when going out of jail you don't throw twicealthough you had double
 						move[0] = 0
-						print('double - out of jail')
+						#print('double - out of jail')
 					else:
 						# in jail, not thrown double, has a card
 						if all_players[i][3] > 0:
 							all_players[i][1] += move[1]
 							all_players[i][3] -= 1
 							all_players[i][2] = 0
-							print('give card')
+							#print('give card')
 
 							#getting back cards
 							if aval_chest_card == 0:
@@ -103,12 +105,12 @@ for c in range(cycles):
 						# in jail, not thrown double, has no card, less then 3 turns
 						elif all_players[i][3] == 0 and all_players[i][2] < 3:
 							all_players[i][2] += 1
-							print('stuck in jail')
+							#print('stuck in jail')
 						# it's three turns, going out anyway
 						else:
 							all_players[i][1] += move[1]
 							all_players[i][2] = 0
-							print('out of jail')
+							#print('out of jail')
 
 				# if thrown double trice you end up in jail
 				if move[0] == 0:
@@ -121,7 +123,7 @@ for c in range(cycles):
 						all_players[i][2] = 1
 						game_landing[c][c_turn][30] += 1
 						thrown_double = 4
-						print('three doubles - go to jail')
+						#print('three doubles - go to jail')
 
 				if all_players[i][2] == 0:
 
@@ -130,13 +132,13 @@ for c in range(cycles):
 						all_players[i][1] = all_players[i][1] - 40
 						all_players[i][4] += 1
 
-					print(all_players[i][1])
+					#print(all_players[i][1])
 					game_landing[c][c_turn][all_players[i][1]] += 1
 
 					# comunity chests
 					# https://stackoverflow.com/a/15112149/5531122
 					if all_players[i][1] in (2,17,33):
-						print('chest')
+						#print('chest')
 						if aval_chest_card == 1:
 							card = random.randint(1,17)
 						else:
@@ -158,12 +160,12 @@ for c in range(cycles):
 						elif card == 17:
 							all_players[i][3] += 1
 							aval_chest_card = 0
-							print('chest card')
+							#print('chest card')
 
 					# chance
 					# https://stackoverflow.com/a/15112149/5531122
 					if all_players[i][1] in (7,22,36):
-						print('chance')
+						#print('chance')
 						if aval_chance_card == 1:
 							card = random.randint(1,16)
 						else:
@@ -208,7 +210,7 @@ for c in range(cycles):
 
 						# Nearest Utility
 						elif card == 8:
-							print('utility')
+							#print('utility')
 							if all_players[i][1] < 12 and all_players[i][1] > 28:
 								all_players[i][1] = 12
 								game_landing[c][c_turn][12] += 1
@@ -218,7 +220,7 @@ for c in range(cycles):
 
 						# Nearest Train station
 						elif card == 9:
-							print('train')
+							#print('train')
 							if all_players[i][1] < 5 and all_players[i][1] > 35:
 								all_players[i][1] = 5
 								game_landing[c][c_turn][5] += 1
@@ -236,7 +238,7 @@ for c in range(cycles):
 						elif card == 16:
 							all_players[i][3] += 1
 							aval_chance_card = 0
-							print('chance card')
+							#print('chance card')
 
 					# landing on go to jail
 					if all_players[i][1] == 10:
@@ -244,21 +246,20 @@ for c in range(cycles):
 						all_players[i][2] = 1
 						game_landing[c][c_turn][30] += 1
 						thrown_double = 4
-						print('go to jail')
+						#print('go to jail')
 
 					# take if free to buy - first 
 					if owned_simple[c][all_players[i][1]] == 0:
 						owned_simple[c][all_players[i][1]] = i+1
 						game_owning[c][c_turn][all_players[i][1]] = i+1
-				print(all_players[i])
-			print(all_players[i])
+				#print(all_players[i])
+			#print(all_players[i])
 
-			print('-----------------')
+			#print('-----------------')
 		print('--------------------------------------------------')
 		c_turn += 1
 
 	print(owned_simple[c])
-	print(type(owned_simple[c]))
 	print('--------------------------------------------------')
 	print(game_owning[c])
 	print('--------------------------------------------------')
@@ -280,3 +281,53 @@ print('--------------------------------------------------')
 print(game_owning)
 print('--------------------------------------------------')
 print(game_landing)
+
+
+print('--------------------------------------------------')
+print('--------------------------------------------------')
+print('--------------------------------------------------')
+x = 0
+landing_simple = np.zeros(40)
+print(landing_simple)
+for i in game_landing:
+	for j in i:
+		print('----------------')
+		print(landing_simple)
+		print(j)
+		x+= 1
+		landing_simple += j
+		print(landing_simple)
+print(x)
+print(landing_simple)
+
+
+
+
+
+
+
+'''for i in owned_simple:
+	print(i)
+'''
+
+
+
+
+
+'''
+
+
+#https://stackoverflow.com/a/46141950/5531122
+
+names = range(40)
+#index = pd.MultiIndex.from_product([range(s)for s in owned_simple.shape], names=names)
+#df = pd.DataFrame({'A': A.flatten()}, index=index)['A']
+df = pd.DataFrame(owned_simple.reshape(40,10))
+print([*df])
+
+print(df)
+#https://stackoverflow.com/a/19093356/5531122
+pl.hist(df,stacked=True)
+pl.show()
+'''
+
