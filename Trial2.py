@@ -9,17 +9,20 @@ import pandas as pd
 
 import pylab as pl
 
-cycles = 100
+cycles = 1000000
 #how manu turns there is
-turns = 5
+turns = 1
 players = 5
+
+#Supress scientific notation
+np.set_printoptions(suppress=True)
 
 
 def throw_dice():
     dice1 = random.randint(1,6)
     dice2 = random.randint(1,6)
 
-    if(dice1 ==dice2):
+    if dice1 == dice2:
         return [1,dice1+dice2]
     else:
         return [0,dice1+dice2]
@@ -86,7 +89,7 @@ for c in range(cycles):
                     if move[0] == 1:
                         all_players[i][1] += move[1]
                         all_players[i][2] = 0
-                        #when going out of jail you don't throw twicealthough you had double
+                        #when going out of jail you don't throw twice although you had double
                         move[0] = 0
                         #print('double - out of jail')
                     else:
@@ -102,7 +105,7 @@ for c in range(cycles):
                                 aval_chest_card = 1
                             else:
                                 aval_chance_card = 1
-                        # in jail, not thrown double, has no card, less then 3 turns
+                        # in jail, not thrown double, has no card, less than 3 turns
                         elif all_players[i][3] == 0 and all_players[i][2] < 3:
                             all_players[i][2] += 1
                             #print('stuck in jail')
@@ -256,22 +259,22 @@ for c in range(cycles):
             #print(all_players[i])
 
             #print('-----------------')
-        print('--------------------------------------------------')
+        #print('--------------------------------------------------')
         c_turn += 1
-
+    '''
     print(owned_simple[c])
     print('--------------------------------------------------')
     print(game_owning[c])
     print('--------------------------------------------------')
     print(game_landing[c])
-
+    '''
     #adding to global arrays
 ''' g_owned_simple[c] = owned_simple
     g_game_owning[c] = game_owning
     g_game_landing[c] = game_landing
 
 '''
-
+'''
 #print(np.zeros((6,turns,40)).astype(int))
 print('--------------------------------------------------')
 print('--------------------------------------------------')
@@ -286,19 +289,29 @@ print(game_landing)
 print('--------------------------------------------------')
 print('--------------------------------------------------')
 print('--------------------------------------------------')
+'''
 x = 0
 landing_simple = np.zeros(40)
-print(landing_simple)
+#print(landing_simple)
 for i in game_landing:
     for j in i:
-        print('----------------')
-        print(j)
+        #print('----------------')
+        #print(j)
         x+= 1
         landing_simple += j
-        print(landing_simple)
+        #print(landing_simple)
 
 print(landing_simple)
-print(game_landing)
+print('in %')
+tot = np.sum(landing_simple)
+print(tot)
+landing_simple = landing_simple / tot * 100
+print(landing_simple)
+aver = np.average(landing_simple)
+print(landing_simple - aver)
+
+
+#print(game_landing)
 
 
 
