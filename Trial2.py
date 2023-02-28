@@ -1,15 +1,15 @@
-import multiprocessing as mp
-import numpy as np
-import random
+'''
+Simulating a monopoly game, to test strategies
+''' 
 
 import os
 import sys
-
+import numpy as np
+import random
 import pandas as pd
 
-import pylab as pl
 
-cycles = 1000000
+cycles = 10
 #how manu turns there is
 turns = 1
 players = 5
@@ -19,18 +19,54 @@ np.set_printoptions(suppress=True)
 
 
 def throw_dice():
+    '''
+    Return result of throwing dice
+    '''
     dice1 = random.randint(1,6)
     dice2 = random.randint(1,6)
 
+    #If duble, return first value as one
     if dice1 == dice2:
-        return [1,dice1+dice2]
+        return (1,dice1+dice2)
     else:
-        return [0,dice1+dice2]
+        return (0,dice1+dice2)
 
-# board all cycles in one array
-g_game_owning = []*cycles
-g_owned_simple = []*cycles
-g_game_landing = []*cycles
+#dictionary of fields
+properties_dict = {'number':None, # From 0 to 39
+'owner':None, # player number
+'type':None, # street, railroad, utilities
+'price':None, # price to buy
+'variant':None, # 0 - single, 1 - full set, 0.5 - two railroads, 0.75 - three railroads,
+# 1,25 - one house, 1.5 - two houses, 1.75 - three houses, 2 - four houses, 3 - hotel
+# -1 - morgage
+'bill': None}
+
+
+class Player:
+    def __init__(self,current_loc=0):
+        self.current_loc = current_loc
+        self.properties = 0
+        self.rounds_count = 0
+        self.got_double = 0
+
+    def move(val):
+        self.current_loc =+ val
+        if self.current_loc > 39:
+            self.current_loc = 40 - self.current_loc
+            self.rounds_count += 1
+        elif  self.current_loc < 0:
+            self.current_loc = 40 + self.current_loc
+
+    def make_decission(dice_roll):
+        self.move(dice_roll[1])
+
+
+
+
+
+
+
+
 
 # board single cycle
 game_owning = np.zeros((cycles,turns,40)).astype(int)
@@ -52,9 +88,6 @@ for c in range(cycles):
 
 for c in range(cycles):
     
-    
-
-
     # For each player: 0 - player number, 1 - position on board, 2 - turns in jail,
     # 3 - free out of jail cards, 4 - passed Start count
     all_players = np.zeros((players,5)).astype(int)
@@ -268,12 +301,6 @@ for c in range(cycles):
     print('--------------------------------------------------')
     print(game_landing[c])
     '''
-    #adding to global arrays
-''' g_owned_simple[c] = owned_simple
-    g_game_owning[c] = game_owning
-    g_game_landing[c] = game_landing
-
-'''
 '''
 #print(np.zeros((6,turns,40)).astype(int))
 print('--------------------------------------------------')
@@ -309,38 +336,3 @@ landing_simple = landing_simple / tot * 100
 print(landing_simple)
 aver = np.average(landing_simple)
 print(landing_simple - aver)
-
-
-#print(game_landing)
-
-
-
-
-
-
-
-'''for i in owned_simple:
-    print(i)
-'''
-
-
-
-
-
-'''
-
-
-#https://stackoverflow.com/a/46141950/5531122
-
-names = range(40)
-#index = pd.MultiIndex.from_product([range(s)for s in owned_simple.shape], names=names)
-#df = pd.DataFrame({'A': A.flatten()}, index=index)['A']
-df = pd.DataFrame(owned_simple.reshape(40,10))
-print([*df])
-
-print(df)
-#https://stackoverflow.com/a/19093356/5531122
-pl.hist(df,stacked=True)
-pl.show()
-'''
-
