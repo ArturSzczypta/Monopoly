@@ -113,7 +113,7 @@ def PLAYERS_throw(player):
         player.current_loc = 10
         player.in_jail = 1
 
-
+# Setting out of jail 
 free_jail_cards = {'chance': True, 'chest': True}
 #field 7,22,36
 def chance_card(has_jail_card=True):

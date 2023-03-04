@@ -1,0 +1,5 @@
+loc_numbers	names	set	in_set	price	1_station	2_stations	3_stations	4_stations
+5	King's Cross Station (£200)	Station	4	200	25	100	150	200
+15	Marylebone Station (£200)	Station	4	200	25	100	150	200
+25	Fenchurch St Station (£200)	Station	4	200	25	100	150	200
+35	Liverpool Street Station (£200)	Station	4	200	25	100	150	200
