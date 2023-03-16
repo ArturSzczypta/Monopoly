@@ -46,7 +46,9 @@ properties_dict = {'number':None, # From 0 to 39
 
 
 class Player:
-    def __init__(self,current_loc=0,money=FUNDS):
+    def __init__(self, player_number, current_loc=0, money=FUNDS):
+        
+        self.palyer_number = player_number
         self.current_loc = current_loc
         self.money = money
 
