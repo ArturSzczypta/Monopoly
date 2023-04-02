@@ -61,10 +61,7 @@ class Player:
         self.in_jail_count = 0
 
     def move(self,val):
-        '''
-        Change location based on input (dices or cards)
-
-        '''
+        ''' Change location based on input (dices or cards)'''
         self.current_loc =+ val
         if self.current_loc > 39:
             self.current_loc = 40 - self.current_loc
@@ -80,9 +77,7 @@ class Player:
         
 
     def use_card(self):
-        '''
-        Use out of jail card if avaliable
-        '''
+        ''' Use out of jail card if avaliable'''
         if self.out_of_jail_cards('chance'):
             self.out_of_jail_cards('chance') = False
             free_jail_cards('chance') = True
@@ -93,11 +88,8 @@ class Player:
             return True
         return False
 
-
 def player_throw(player):
-    '''
-    Deals with player throwing the dice, going to and going out of jail
-    '''
+    '''  Deals with player throwing the dice, going to and going out of jail'''
     doubles_count = 0
     while doubles_count < 3:
         throw = throw_dice()
@@ -119,9 +111,7 @@ def player_throw(player):
 free_jail_cards = {'chance': True, 'chest': True}
 #field 7,22,36
 def chance_card(has_jail_card=True):
-    '''
-    Pick chance card
-    '''
+    ''' Pick chance card'''
     if free_jail_cards('chance'):
         card = random.randint(0,16)
     else:
@@ -152,7 +142,7 @@ def chance_card(has_jail_card=True):
     elif card == 7:
         player.current_loc -= 3
     elif card == 8:
-        if player.current_loc < 20:
+        if player.current_loc in (7, 36):
            player.current_loc = 12
            #buy or pay 10 times the dice thrown!!!!!!!!
         else:
@@ -190,9 +180,7 @@ def chance_card(has_jail_card=True):
 
 #field 17,33
 def chest_card(has_jail_card=True):
-    '''
-    Pick chest card
-    '''
+    ''' Pick chest card'''
     if free_jail_cards('chest'):
         card = random.randint(0,17)
     else:
