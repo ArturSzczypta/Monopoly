@@ -22,9 +22,7 @@ player_list = []
 
 
 def throw_dice():
-    '''
-    Return result of throwing dice
-    '''
+    ''' Return result of throwing dice '''
     dice1 = random.randint(1,6)
     dice2 = random.randint(1,6)
 
@@ -46,7 +44,7 @@ properties_dict = {'number':None, # From 0 to 39
 
 
 class Player:
-    def __init__(self, player_number, current_loc=0, money=FUNDS):
+    def __init__(self, player_number, money):
         
         self.palyer_number = player_number
         self.current_loc = current_loc
@@ -55,10 +53,10 @@ class Player:
         self.properties = 0
 
         self.out_of_jail_cards = {'chance': False, 'chest': False}
-        self.in_jail = 0
+        self.turns_in_jail = 0
 
         self.passed_start = 0
-        self.in_jail_count = 0
+        self.turns_in_jail_count = 0
 
     def move(self,val):
         ''' Change location based on input (dices or cards)'''
@@ -73,7 +71,7 @@ class Player:
         # Go to jail field
         if self.current_loc == 30:
             self.current_loc = 10
-            self.in_jail = 1
+            self.turns_in_jail = 1
         
 
     def use_card(self):
@@ -93,10 +91,10 @@ def player_throw(player):
     doubles_count = 0
     while doubles_count < 3:
         throw = throw_dice()
-        if player.in_jail in range(1,4):
+        if player.turns_in_jail in range(1,4):
             if not player.use_card:
                 throw[0] == False:
-                player.in_jail += 1
+                player.turns_in_jail += 1
                 break
         player.move(throw[1])
         if throw[0] == True:
@@ -105,10 +103,11 @@ def player_throw(player):
             break
     if doubles_count == 3:
         player.current_loc = 10
-        player.in_jail = 1
+        player.turns_in_jail = 1
 
 # Setting out of jail 
 free_jail_cards = {'chance': True, 'chest': True}
+
 #field 7,22,36
 def chance_card(has_jail_card=True):
     ''' Pick chance card'''
@@ -138,7 +137,7 @@ def chance_card(has_jail_card=True):
         player.current_loc = 39
     elif card == 6:
         player.current_loc = 10
-        player.in_jail = 1
+        player.turns_in_jail = 1
     elif card == 7:
         player.current_loc -= 3
     elif card == 8:
@@ -193,7 +192,7 @@ def chest_card(has_jail_card=True):
         player.money += 200
     elif card == 2:
         player.current_loc = 10
-        player.in_jail = 1
+        player.turns_in_jail = 1
     elif card == 3:
         player.money += 200
     elif card in range(4,7)
@@ -225,3 +224,20 @@ def chest_card(has_jail_card=True):
         house_count = 0
         hotels_count = 0
         players.money -= 40*house_count + 115*hotels_count
+
+class Game:
+    def __init__(self, players_count, start_funds):
+        
+        self.players_count = players_count
+        self.start_funds = start_funds
+        self.players = [Player(num, start_funds) for num in range(1, players_count+1)]
+        self.turn = 0
+
+    def record_turn(self, file_name)
+        ''' saves deteils of the turn to file'''
+        print('empty')
+
+    def bankrupcy(self):
+        ''' Deletes player once bankrupt'''
+        players.remove
+        print('empty')
