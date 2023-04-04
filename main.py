@@ -44,11 +44,12 @@ properties_dict = {'number':None, # From 0 to 39
 
 
 class Player:
-    def __init__(self, player_number, money):
+    def __init__(self, player_number, funds):
         
-        self.palyer_number = player_number
-        self.current_loc = current_loc
-        self.money = money
+        self.name = 'Player ' + str(player_number)
+        self.number = player_number
+        self.funds = funds
+        self.current_loc = 0
 
         self.properties = 0
 
@@ -58,12 +59,16 @@ class Player:
         self.passed_start = 0
         self.turns_in_jail_count = 0
 
+    def details(self):
+        ''' Return all player attributes as a dictionary'''
+        return vars(self)
+
     def move(self,val):
         ''' Change location based on input (dices or cards)'''
         self.current_loc =+ val
         if self.current_loc > 39:
             self.current_loc = 40 - self.current_loc
-            self.money += 200
+            self.funds += 200
 
         elif  self.current_loc < 0:
             self.current_loc = 40 + self.current_loc
@@ -120,18 +125,18 @@ def chance_card(has_jail_card=True):
         free_jail_cards('chance') = False
     elif card == 1:
         player.current_loc = 0
-        player.money += 200
+        player.funds += 200
     elif card == 2:
         if player.current_loc > 5:
-            player.money += 200
+            player.funds += 200
         player.current_loc = 5
     elif card == 3:
         if player.current_loc > 11:
-            player.money += 200
+            player.funds += 200
         player.current_loc = 11
     elif card == 4:
         if player.current_loc > 24:
-            player.money += 200
+            player.funds += 200
         player.current_loc = 24
     elif card == 5:
         player.current_loc = 39
@@ -148,34 +153,35 @@ def chance_card(has_jail_card=True):
            player.current_loc = 28
            #buy or pay 10 times the dice throw!!!!!!!!
     elif card == 9:
+        #nearest rail station
         if player.current_loc == 7:
-           player.current_loc = 5
+           player.current_loc = 10
            #buy or pay 2 times more!!!!!!!!
         elif player.current_loc == 22:
            player.current_loc = 25
            #buy or pay 2 times more!!!!!!!!
         else:
-            player.current_loc = 35
+            player.current_loc = 5
             #buy or pay 2 times more!!!!!!!
     elif card == 10:
-        player.money += 150
+        player.funds += 150
     elif card == 11:
-        player.money += 100
+        player.funds += 100
     elif card == 12:
-        player.money += 50
+        player.funds += 50
     elif card == 13:
-        player.money -= 15
+        player.funds -= 15
     elif card == 14:
         #Each player pays 50
         list_temp = [x for s in player_list if x != player]
         for players in list_temp:
-            players.money -= 50
-            player.money += 50
+            players.funds -= 50
+            player.funds += 50
     elif card == 15:
         #for each house pay 25, for hotels 100
         house_count = 0
         hotels_count = 0
-        players.money -= 25*house_count + 100*hotels_count
+        players.funds -= 25*house_count + 100*hotels_count
 
 #field 17,33
 def chest_card(has_jail_card=True):
@@ -189,41 +195,41 @@ def chest_card(has_jail_card=True):
         free_jail_cards('chance') = False
     elif card == 1:
         player.current_loc = 0
-        player.money += 200
+        player.funds += 200
     elif card == 2:
         player.current_loc = 10
         player.turns_in_jail = 1
     elif card == 3:
-        player.money += 200
+        player.funds += 200
     elif card in range(4,7)
-        player.money += 100
+        player.funds += 100
     elif card == 7:
-        player.money += 50
+        player.funds += 50
     elif card == 8:
-        player.money += 25
+        player.funds += 25
     elif card == 9:
-        player.money += 20
+        player.funds += 20
     elif card == 10:
-        player.money += 10
+        player.funds += 10
     elif card in range(11,14)
-        player.money -= 50
+        player.funds -= 50
     elif card == 14:
         #Each player pays 50
         list_temp = [x for s in player_list if x != player]
         for players in list_temp:
-            players.money -= 50
-            player.money += 50
+            players.funds -= 50
+            player.funds += 50
     elif card == 16:
         #Each player pays 50
         list_temp = [x for s in player_list if x != player]
         for players in list_temp:
-            players.money -= 10
-            player.money += 10
+            players.funds -= 10
+            player.funds += 10
     elif card == 16:
         #for each house pay 25, for hotels 100
         house_count = 0
         hotels_count = 0
-        players.money -= 40*house_count + 115*hotels_count
+        players.funds -= 40*house_count + 115*hotels_count
 
 class Game:
     def __init__(self, players_count, start_funds):
@@ -235,9 +241,12 @@ class Game:
 
     def record_turn(self, file_name)
         ''' saves deteils of the turn to file'''
-        print('empty')
+        turn_details = ['turn': self.turn]
+        players = [player.details() for player in self.players]
+        turn_details.extend(players)
+        with open(file_name, 'a', encoding='utf-8') as file:
+            file.write(turn_details + '\n')
 
-    def bankrupcy(self):
+    def bankrupcy(self, player):
         ''' Deletes player once bankrupt'''
-        players.remove
-        print('empty')
+        players.remove(player)
