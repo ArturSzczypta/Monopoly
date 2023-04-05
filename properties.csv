@@ -1,0 +1,29 @@
+number,names,set,in_set,price,mortgage,rent,buildinng_cost,1_house,2_houses,3_houses,4_houses,hotel
+1,Old Kent Road,Brown,2,60,30,2,50,10,30,90,160,250
+3,Whitechapel Road,Brown,2,60,30,4,50,20,60,180,360,450
+6,The Angel Islington,Till,3,100,50,6,50,30,90,270,400,550
+8,Euston Road,Till,3,100,50,6,50,30,90,270,400,550
+9,Pentonville Road,Till,3,120,50,8,50,40,100,300,450,600
+11,Pall Mall,Magenta,3,140,100,10,100,50,150,450,625,750
+13,Whitehall,Magenta,3,140,100,10,100,50,150,450,625,750
+14,Northumberland Avenue,Magenta,3,160,100,12,100,60,180,500,700,900
+16,Bow Street,Orange,3,180,100,14,100,70,200,550,750,950
+18,Marlborough Street,Orange,3,180,100,14,100,70,200,550,750,950
+19,Vine Street,Orange,3,200,100,16,100,80,220,600,800,1000
+21,Strand,Red,3,220,150,18,150,90,250,700,875,1050
+23,Fleet Street,Red,3,220,150,18,150,90,250,700,875,1050
+24,Trafalgar Square,Red,3,240,150,20,150,100,300,750,925,1100
+26,Leicester Square,Yellow,3,260,150,22,150,110,330,800,975,1150
+27,Coventry Street,Yellow,3,260,150,22,150,110,330,800,975,1150
+29,Piccadilly,Yellow,3,280,150,24,150,120,360,850,1025,1200
+31,Regent Street,Green,3,300,200,26,200,130,390,900,1100,1275
+32,Oxford Street,Green,3,300,200,26,200,130,390,900,1100,1275
+34,Bond Street,Green,3,320,200,28,200,150,450,1000,1200,1400
+37,Park Lane,Cyan,2,350,200,35,200,175,500,1100,1300,1500
+39,Mayfair,Cyan,2,400,200,50,200,200,600,1400,1700,2000
+5,King's Cross Station,Station,4,200,100,,,25,100,150,200,
+15,Marylebone Station,Station,4,200,100,,,25,100,150,200,
+25,Fenchurch St Station,Station,4,200,100,,,25,100,150,200,
+35,Liverpool Street Station,Station,4,200,100,,,25,100,150,200,
+12,Electric Company,Utility,2,150,75,,,4,10,,,
+28,Water Works,Utility,2,150,75,,,4,10,,,

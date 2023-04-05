@@ -43,6 +43,7 @@ properties_dict = {'number':None, # From 0 to 39
 'bill': None}
 
 
+
 class Player:
     def __init__(self, player_number, funds):
         
@@ -91,24 +92,7 @@ class Player:
             return True
         return False
 
-def player_throw(player):
-    '''  Deals with player throwing the dice, going to and going out of jail'''
-    doubles_count = 0
-    while doubles_count < 3:
-        throw = throw_dice()
-        if player.turns_in_jail in range(1,4):
-            if not player.use_card:
-                throw[0] == False:
-                player.turns_in_jail += 1
-                break
-        player.move(throw[1])
-        if throw[0] == True:
-            doubles_count += 1
-        else:
-            break
-    if doubles_count == 3:
-        player.current_loc = 10
-        player.turns_in_jail = 1
+
 
 # Setting out of jail 
 free_jail_cards = {'chance': True, 'chest': True}
@@ -238,6 +222,29 @@ class Game:
         self.start_funds = start_funds
         self.players = [Player(num, start_funds) for num in range(1, players_count+1)]
         self.turn = 0
+
+    def turn(self):
+        for player in self.players:
+            player_throw(player)
+
+    def player_throw(self, player):
+        '''  Deals with player throwing the dice, going to and going out of jail'''
+        doubles_count = 0
+        while doubles_count < 3:
+            throw = throw_dice()
+            if player.turns_in_jail in range(1,4):
+                if not player.use_card:
+                    throw[0] == False:
+                    player.turns_in_jail += 1
+                    break
+            player.move(throw[1])
+            if throw[0] == True:
+                doubles_count += 1
+            else:
+                break
+        if doubles_count == 3:
+            player.current_loc = 10
+            player.turns_in_jail = 1
 
     def record_turn(self, file_name)
         ''' saves deteils of the turn to file'''
