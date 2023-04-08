@@ -82,13 +82,13 @@ class Player:
 
     def use_card(self):
         ''' Use out of jail card if avaliable'''
-        if self.out_of_jail_cards('chance'):
-            self.out_of_jail_cards('chance') = False
-            free_jail_cards('chance') = True
+        if self.out_of_jail_cards['chance']:
+            self.out_of_jail_cards['chance'] = False
+            free_jail_cards['chance'] = True
             return True
-        elif:
-            self.out_of_jail_cards('chest') = False
-            free_jail_cards('chest') = True
+        elif self.out_of_jail_cards['chest']:
+            self.out_of_jail_cards['chest'] = False
+            free_jail_cards['chest'] = True
             return True
         return False
 
@@ -98,15 +98,15 @@ class Player:
 free_jail_cards = {'chance': True, 'chest': True}
 
 #field 7,22,36
-def chance_card(has_jail_card=True):
+def chance_card(player,has_jail_card=True):
     ''' Pick chance card'''
-    if free_jail_cards('chance'):
+    if free_jail_cards['chance']:
         card = random.randint(0,16)
     else:
         card = random.randint(1,16)
     if card == 0:
-        player.out_of_jail_cards('chance') = True
-        free_jail_cards('chance') = False
+        player.out_of_jail_cards['chance'] = True
+        free_jail_cards['chance'] = False
     elif card == 1:
         player.current_loc = 0
         player.funds += 200
@@ -157,7 +157,7 @@ def chance_card(has_jail_card=True):
         player.funds -= 15
     elif card == 14:
         #Each player pays 50
-        list_temp = [x for s in player_list if x != player]
+        list_temp = [x for x in player_list if x != player]
         for players in list_temp:
             players.funds -= 50
             player.funds += 50
@@ -168,15 +168,15 @@ def chance_card(has_jail_card=True):
         players.funds -= 25*house_count + 100*hotels_count
 
 #field 17,33
-def chest_card(has_jail_card=True):
+def chest_card(player,has_jail_card=True):
     ''' Pick chest card'''
     if free_jail_cards('chest'):
         card = random.randint(0,17)
     else:
         card = random.randint(1,17)
     if card == 0:
-        player.out_of_jail_cards('chance') = True
-        free_jail_cards('chance') = False
+        player.out_of_jail_cards['chance'] = True
+        free_jail_cards['chance'] = False
     elif card == 1:
         player.current_loc = 0
         player.funds += 200
@@ -185,7 +185,7 @@ def chest_card(has_jail_card=True):
         player.turns_in_jail = 1
     elif card == 3:
         player.funds += 200
-    elif card in range(4,7)
+    elif card in range(4,7):
         player.funds += 100
     elif card == 7:
         player.funds += 50
@@ -195,17 +195,17 @@ def chest_card(has_jail_card=True):
         player.funds += 20
     elif card == 10:
         player.funds += 10
-    elif card in range(11,14)
+    elif card in range(11,14):
         player.funds -= 50
     elif card == 14:
         #Each player pays 50
-        list_temp = [x for s in player_list if x != player]
+        list_temp = [x for x in player_list if x != player]
         for players in list_temp:
             players.funds -= 50
             player.funds += 50
     elif card == 16:
         #Each player pays 50
-        list_temp = [x for s in player_list if x != player]
+        list_temp = [x for x in player_list if x != player]
         for players in list_temp:
             players.funds -= 10
             player.funds += 10
@@ -225,7 +225,7 @@ class Game:
 
     def turn(self):
         for player in self.players:
-            player_throw(player)
+            self.player_throw(player)
 
     def player_throw(self, player):
         '''  Deals with player throwing the dice, going to and going out of jail'''
@@ -233,7 +233,7 @@ class Game:
         while doubles_count < 3:
             throw = throw_dice()
             if player.turns_in_jail in range(1,4):
-                if not player.use_card:
+                if self.out_of_jail_cards == {'chance': False, 'chest': False} and \
                     throw[0] == False:
                     player.turns_in_jail += 1
                     break
@@ -246,14 +246,14 @@ class Game:
             player.current_loc = 10
             player.turns_in_jail = 1
 
-    def record_turn(self, file_name)
+    def record_turn(self, file_name):
         ''' saves deteils of the turn to file'''
-        turn_details = ['turn': self.turn]
-        players = [player.details() for player in self.players]
-        turn_details.extend(players)
+        turn_details = {'turn': self.turn}
+        players = {player.details() for player in self.players}
+        turn_details = turn_details.update(players)
         with open(file_name, 'a', encoding='utf-8') as file:
             file.write(turn_details + '\n')
 
     def bankrupcy(self, player):
         ''' Deletes player once bankrupt'''
-        players.remove(player)
+        self.players.remove(player)
