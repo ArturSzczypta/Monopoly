@@ -2,12 +2,9 @@
 Simulating a monopoly game, to test strategies
 ''' 
 
-import os
-import sys
 import numpy as np
 import random
-import pandas as pd
-
+import csv
 
 ITERATIONS = 10
 #how manu TURNS there is
@@ -17,9 +14,6 @@ FUNDS = 2000
 
 #Supress scientific notation
 np.set_printoptions(suppress=True)
-
-player_list = []
-
 
 def throw_dice():
     ''' Return result of throwing dice '''
@@ -32,27 +26,15 @@ def throw_dice():
     else:
         return (0,dice1+dice2)
 
-#dictionary of fields
-properties_dict = {'number':None, # From 0 to 39
-'owner':None, # player number
-'type':None, # street, railroad, utilities
-'price':None, # price to buy
-'variant':None, # 0 - single, 1 - full set, 0.5 - two railroads, 0.75 - three railroads,
-# 1,25 - one house, 1.5 - two houses, 1.75 - three houses, 2 - four houses, 3 - hotel
-# -1 - morgage
-'bill': None}
-
-
 
 class Player:
-    def __init__(self, player_number, funds):
-        
+    def __init__(self, player_number, funds):  
         self.name = 'Player ' + str(player_number)
         self.number = player_number
         self.funds = funds
         self.current_loc = 0
 
-        self.properties = 0
+        self.properties = []
 
         self.out_of_jail_cards = {'chance': False, 'chest': False}
         self.turns_in_jail = 0
@@ -69,17 +51,17 @@ class Player:
         self.current_loc =+ val
         if self.current_loc > 39:
             self.current_loc = 40 - self.current_loc
+            self.passed_start += 1
             self.funds += 200
 
         elif  self.current_loc < 0:
             self.current_loc = 40 + self.current_loc
 
-        # Go to jail field
+        # Go to jail
         if self.current_loc == 30:
             self.current_loc = 10
             self.turns_in_jail = 1
         
-
     def use_card(self):
         ''' Use out of jail card if avaliable'''
         if self.out_of_jail_cards['chance']:
@@ -91,8 +73,6 @@ class Player:
             free_jail_cards['chest'] = True
             return True
         return False
-
-
 
 # Setting out of jail 
 free_jail_cards = {'chance': True, 'chest': True}
@@ -167,7 +147,7 @@ def chance_card(player,has_jail_card=True):
         hotels_count = 0
         players.funds -= 25*house_count + 100*hotels_count
 
-#field 17,33
+#field 2,17,33
 def chest_card(player,has_jail_card=True):
     ''' Pick chest card'''
     if free_jail_cards('chest'):
@@ -217,7 +197,6 @@ def chest_card(player,has_jail_card=True):
 
 class Game:
     def __init__(self, players_count, start_funds):
-        
         self.players_count = players_count
         self.start_funds = start_funds
         self.players = [Player(num, start_funds) for num in range(1, players_count+1)]
@@ -225,16 +204,20 @@ class Game:
 
     def turn(self):
         for player in self.players:
-            self.player_throw(player)
+            self.player_throws(player)
 
-    def player_throw(self, player):
+    def player_throws(self, player):
         '''  Deals with player throwing the dice, going to and going out of jail'''
         doubles_count = 0
         while doubles_count < 3:
             throw = throw_dice()
             if player.turns_in_jail in range(1,4):
-                if self.out_of_jail_cards == {'chance': False, 'chest': False} and \
-                    throw[0] == False:
+                if any(player.out_of_jail_cards.values()):
+                    player.use_jail_card()
+                    player.turns_in_jail = 0
+                elif throw[0] == True:
+                    player.turns_in_jail = 0
+                else:
                     player.turns_in_jail += 1
                     break
             player.move(throw[1])
@@ -247,7 +230,7 @@ class Game:
             player.turns_in_jail = 1
 
     def record_turn(self, file_name):
-        ''' saves deteils of the turn to file'''
+        ''' Saves deteils of the turn to file'''
         turn_details = {'turn': self.turn}
         players = {player.details() for player in self.players}
         turn_details = turn_details.update(players)
@@ -255,5 +238,5 @@ class Game:
             file.write(turn_details + '\n')
 
     def bankrupcy(self, player):
-        ''' Deletes player once bankrupt'''
+        ''' Delete player once bankrupt'''
         self.players.remove(player)

@@ -1,4 +1,4 @@
-number,names,set,in_set,price,mortgage,rent,buildinng_cost,1_house,2_houses,3_houses,4_houses,hotel
+number,names,set,in_set,price,mortgage,rent,buildinng_cost,house_1,houses_2,houses_3,house_4,hotel
 1,Old Kent Road,Brown,2,60,30,2,50,10,30,90,160,250
 3,Whitechapel Road,Brown,2,60,30,4,50,20,60,180,360,450
 6,The Angel Islington,Till,3,100,50,6,50,30,90,270,400,550
