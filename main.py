@@ -67,9 +67,9 @@ class Player:
         # in future checking funds will not be necessary
         if buy and self.funds >= field_list[self.current_loc].price:
             self.funds -= field_list[self.current_loc].price
-            self.append(self.current_loc)
+            self.append(field_list[self.current_loc])
         else:
-            return 'auction'
+            print('auction')
         
     def auction(self, field_number, current_bid):
         ''' Decide if auction or fold'''
@@ -166,7 +166,7 @@ class Game:
                 else:
                     player.turns_in_jail += 1
                     break
-            player.move(throw[1])
+            self.move(player, throw[1])
             if throw[0] == True:
                 doubles_count += 1
             else:
@@ -198,18 +198,17 @@ class Game:
             player.out_of_jail_cards['chance'] = True
             free_jail_cards['chance'] = False
         elif card == 1:
-            player.current_loc = 0
             player.funds += 200
+            player.current_loc = 0
         elif card == 2:
-            if player.current_loc > 5:
-                player.funds += 200
+            player.funds += 200
             player.current_loc = 5
         elif card == 3:
-            if player.current_loc > 11:
+            if player.current_loc > 7:
                 player.funds += 200
             player.current_loc = 11
         elif card == 4:
-            if player.current_loc > 24:
+            if player.current_loc == 36:
                 player.funds += 200
             player.current_loc = 24
         elif card == 5:
@@ -217,21 +216,19 @@ class Game:
         elif card == 6:
             player.current_loc = 10
             player.turns_in_jail = 1
+            
         elif card == 7:
             player.current_loc -= 3
         elif card == 8:
-            # Utility
+            # Move to nearest utility
             if player.current_loc in (7, 36):
                 player.current_loc = 12
-            #buy or pay 10 times the dice thrown!!!!!!!!
             else:
                 player.current_loc = 28
-            #buy or pay 10 times the dice throw!!!!!!!!
         elif card == 9:
-            # Rail station
-            #nearest rail station
+            # Move to nearest Rail station
             if player.current_loc == 7:
-                player.current_loc = 10
+                player.current_loc = 15
             elif player.current_loc == 22:
                 player.current_loc = 25
                 #buy or pay 2 times more!!!!!!!!
@@ -245,18 +242,17 @@ class Game:
         elif card == 12:
             player.funds += 50
         elif card == 13:
-            player.funds -= 15
+            player.pay(15)
         elif card == 14:
             #Each player pays 50
             list_temp = [x for x in self.players if x != player]
             for players in list_temp:
-                players.funds -= 50
+                players.pay(50)
                 player.funds += 50
         elif card == 15:
             #for each house pay 25, for hotels 100
-            house_count = 0
-            hotels_count = 0
-            players.funds -= 25*house_count + 100*hotels_count
+            payment = 25 * player.house_count + 100 * player.hotels_count
+            player.pay(payment)
 
     #field 2,17,33
     def chest_card(self, player):
@@ -287,24 +283,23 @@ class Game:
         elif card == 10:
             player.funds += 10
         elif card in range(11,14):
-            player.funds -= 50
+            player.pay(50)
         elif card == 14:
             #Each player pays 50
             list_temp = [x for x in self.players if x != player]
             for players in list_temp:
-                players.funds -= 50
+                players.pay(50)
                 player.funds += 50
         elif card == 15:
             #Each player pays 50
             list_temp = [x for x in self.players if x != player]
             for players in list_temp:
-                players.funds -= 10
+                players.pay(10)
                 player.funds += 10
         elif card == 16:
             #for each house pay 25, for hotels 100
-            house_count = 0
-            hotels_count = 0
-            players.funds -= 40 * house_count + 115 * hotels_count
+            payment = 40 * player.house_count + 115 * player.hotels_count
+            player.pay(payment)
 
     def move(player, throw):
         ''' Move player on the board'''
@@ -314,10 +309,10 @@ class Game:
         
         if player.current_loc == 4:
             # Income Tax
-            player.funds -= 200
+            player.pay(200)
         elif player.current_loc == 38:
             # Luxury Tax
-            player.funds -= 100
+            player.pay(100)
         elif player.current_loc == 30:
             # Go to Jail
             player.current_loc = 10
@@ -325,12 +320,16 @@ class Game:
         elif player.current_loc in (2, 17, 33):
             # Community Chest
             player.chest_card(player)
+            self.move(player, throw)
         elif player.current_loc in (7, 22, 36):
             # Chance
             player.chance_card(player)
+            self.move(player, throw)
         else:
-            # Buy or pay rent
-            player.buy_or_pay_rent(player)
+            # Buy or pay auction
+            player.buy_or_not()
+
+            
         
 
         
