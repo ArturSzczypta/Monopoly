@@ -28,10 +28,11 @@ def throw_dice():
 
 
 class Player:
-    def __init__(self, player_number, funds):  
+    def __init__(self, player_number, funds, Strategy=None):  
         self.name = 'Player ' + str(player_number)
         self.number = player_number
         self.funds = funds
+        self.strategy = Strategy
         self.current_loc = 0
 
         self.properties = []
@@ -62,24 +63,27 @@ class Player:
 
     def buy_or_not(self):
         ''' Decide if buy or auction'''
-        # buy = strategy(self.details, player.current_loc)
+        # buy = self.strategy.buy_or_not(self.details, player.current_loc)
         buy = True
         # in future checking funds will not be necessary
         if buy and self.funds >= field_list[self.current_loc].price:
             self.funds -= field_list[self.current_loc].price
-            self.append(field_list[self.current_loc])
+            self.properties.append(field_list[self.current_loc])
+            return True
         else:
             print('auction')
+            return False
         
     def auction(self, field_number, current_bid):
         ''' Decide if auction or fold'''
         # decide if auction or fold
-        # auction = strategy(self.details, field_number, current_bid)
+        # auction = self.strategy.auction(self.details, field_number, current_bid)
         auction = True
         if auction:
-            return current_bid + 1
+            return current_bid + 10
         else:
             print('fold')
+            return 0
 
     def pay(self, payment):
         ''' Pay rent if player has enough funds'''
@@ -138,19 +142,61 @@ class Player:
                 if self.funds < payment:
                     return 'bancrupt'
 
+def build_house(self, property):
+    ''' Build house if strategy says so and it is possible'''
+    # decide if auction or fold
+    # auction = self.strategy.build_house(self.details, field_number, current_bid)
+    buying = True
+    if buying and self.funds >= property.buildinng_cost and houses > 0:
+        self.funds -= property.buildinng_cost
+        property.status += 0.25
+        houses -= 1
+        property.calculate_rent()
+    
+def build_hotel(self, property): 
+    ''' Build hotel if strategy says so and it is possible'''
+    # decide if auction or fold
+    # auction = self.strategy.build_hotel(self.details, field_number, current_bid)
+    buying = True
+    if buying and self.funds >= property.buildinng_cost and hotels > 0:
+        self.funds -= property.buildinng_cost
+        property.status += 0.25
+        hotels -= 1
+        property.calculate_rent()
 
+# Weights for strategy
+prop_weights = [1, 1, 1] * 6
+prop_auction = [1, 1, 1] * 6
+prop_house = [1, 1, 1] * 6
+prop_hotel = [1, 1, 1] * 6
+prop_bargain = [1, 1, 1] * 6
                     
+
 free_jail_cards = {'chance': True, 'chest': True}
 class Game:
-    def __init__(self, players_count, start_funds):
+    def __init__(self, players_count, start_funds, strategy, prop_weights, prop_auction, prop_house, prop_hotel):
         self.players_count = players_count
         self.start_funds = start_funds
-        self.players = [Player(num, start_funds) for num in range(1, players_count+1)]
+        self.players = [Player(num, start_funds, strategy) for num in range(1, players_count+1)]
+        self.prop_weights = prop_weights
+        self.prop_auction = prop_auction
+        self.prop_house = prop_house
+        self.prop_hotel = prop_hotel
         self.turn = 0
+        self.players_rent = [] #0 - player, 1 - sum of rent, 2 - highest rent
+        for player in self.players:
+            sum_rent = sum([prop.rent for prop in player.properties if isinstance(prop, Property) and prop.set != 'Utility'])
+            max_rent = max([prop.rent for prop in player.properties if isinstance(prop, Property) and prop.set != 'Utility'])
+            self.players_rent.append([player.number, sum_rent, max_rent])
+       
+
+
+
 
     def turn(self):
         for player in self.players:
             self.player_throws(player)
+
 
     def player_throws(self, player):
         ''' Deals with player throwing the dice, going to and going out of jail'''
@@ -301,7 +347,7 @@ class Game:
             payment = 40 * player.house_count + 115 * player.hotels_count
             player.pay(payment)
 
-    def move(player, throw):
+    def move(self, player, throw):
         ''' Move player on the board'''
         if player.current_loc + throw > 39:
             player.funds += 200
@@ -325,9 +371,24 @@ class Game:
             # Chance
             player.chance_card(player)
             self.move(player, throw)
-        else:
-            # Buy or pay auction
-            player.buy_or_not()
+        elif player.current_loc in (0, 10, 20):
+            # Free Parking
+            pass
+        elif field_list[player.current_loc].owner == 0:
+            # Unbought property
+            buy = player.buy_or_not()
+            if not buy:
+                current_bid = 0
+                for given_player in self.players:
+                    temp_bid = given_player.auction(player.current_loc, current_bid)
+                    if given_player.funds >= temp_bid:
+                        given_player.pay(temp_bid)
+                        given_player.properties.append(field_list[player.current_loc])
+                        
+
+        elif field_list[player.current_loc].owner != player.number:
+            
+            
 
             
         
