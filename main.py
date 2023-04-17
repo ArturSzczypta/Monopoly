@@ -79,10 +79,10 @@ class Player:
         # decide if auction or fold
         # auction = self.strategy.auction(self.details, field_number, current_bid)
         auction = True
-        if auction:
+        if auction and self.funds >= current_bid + 10:
             return current_bid + 10
         else:
-            print('fold')
+            print(str(self.name)+' fold')
             return 0
 
     def pay(self, payment):
@@ -190,13 +190,9 @@ class Game:
             self.players_rent.append([player.number, sum_rent, max_rent])
        
 
-
-
-
     def turn(self):
         for player in self.players:
             self.player_throws(player)
-
 
     def player_throws(self, player):
         ''' Deals with player throwing the dice, going to and going out of jail'''
@@ -347,6 +343,27 @@ class Game:
             payment = 40 * player.house_count + 115 * player.hotels_count
             player.pay(payment)
 
+    def auctioning(self, location):
+        ''' Auctioning property'''
+        current_bid = 0
+        while True:
+            bidders = len(self.players)
+            for given_player in self.players:
+                temp_bid = given_player.auction(player.current_loc, current_bid)
+                if temp_bid == 0:
+                    bidders -= 1
+                else:
+                    current_bid = temp_bid
+            if bidders == 1:
+                break
+        for given_player in self.players:
+            temp_bid = given_player.auction(player.current_loc, current_bid)
+            if temp_bid > 0:
+                given_player.pay(current_bid)
+                given_player.properties.append(field_list[player.current_loc])
+                break
+        
+
     def move(self, player, throw):
         ''' Move player on the board'''
         if player.current_loc + throw > 39:
@@ -375,18 +392,13 @@ class Game:
             # Free Parking
             pass
         elif field_list[player.current_loc].owner == 0:
-            # Unbought property
+            # Unbought property, buy or auction
             buy = player.buy_or_not()
             if not buy:
-                current_bid = 0
-                for given_player in self.players:
-                    temp_bid = given_player.auction(player.current_loc, current_bid)
-                    if given_player.funds >= temp_bid:
-                        given_player.pay(temp_bid)
-                        given_player.properties.append(field_list[player.current_loc])
-                        
+                self.auctioning(player.current_loc)
+        #elif field_list[player.current_loc].owner != player.number:
+        # Pay rent
 
-        elif field_list[player.current_loc].owner != player.number:
             
             
 
