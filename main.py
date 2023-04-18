@@ -85,7 +85,7 @@ class Player:
             print(str(self.name)+' fold')
             return 0
 
-    def pay(self, payment):
+    def pay(self, payment, owner=None):
         ''' Pay rent if player has enough funds'''
         if self.funds >= payment:
             self.funds -= payment
@@ -138,9 +138,17 @@ class Player:
                         self.funds += property.mortage(self)
                         if self.funds >= payment:
                             break
-                # if all properties mortgaged, return 'bancrupt'
-                if self.funds < payment:
-                    return 'bancrupt'
+                if all(property.status == -1 for property in self.properties):
+                    break
+            # Evaluate if there is enough funds
+            if self.funds > payment:
+                self.funds -= payment
+                if owner:
+                    owner.funds += payment
+            else:
+                # If all properties mortgaged, return 'bancrupt'
+                print('bancrupt')
+            
 
 def build_house(self, property):
     ''' Build house if strategy says so and it is possible'''
@@ -396,8 +404,11 @@ class Game:
             buy = player.buy_or_not()
             if not buy:
                 self.auctioning(player.current_loc)
-        #elif field_list[player.current_loc].owner != player.number:
-        # Pay rent
+        elif field_list[player.current_loc].owner != player.number:
+            # Pay rent
+            for given_player in self.players:
+                if field_list[player.current_loc].owner == given_player.number:
+                    player.pay(field_list[player.current_loc].rent)
 
             
             
