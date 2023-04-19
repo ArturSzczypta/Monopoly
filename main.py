@@ -34,6 +34,7 @@ class Player:
         self.funds = funds
         self.strategy = Strategy
         self.current_loc = 0
+        self.bankrupt = False
 
         self.properties = []
         self.house_count = 0
@@ -111,7 +112,7 @@ class Player:
                         self.funds += property.mortage(self)
                         if self.funds >= payment:
                             break
-                # if still not enough funds, sell hotels
+                # If still not enough funds, sell hotels
                 for property in self.properties:
                     if property.status == 3 and houses > 3:
                         self.funds += property.buildinng_cost / 2
@@ -120,7 +121,15 @@ class Player:
                         hotels += 1
                         if self.funds >= payment:
                             break
-                # if still not enough funds, sell houses, then mortgage
+                    # If there are not enough houses, each hotel is worth 5 houses
+                    if property.status == 3 and houses < 3:
+                        self.funds += 5 * property.buildinng_cost / 2
+                        property.status = 1
+                        hotels += 1
+                        if self.funds >= payment:
+                            break
+
+                # If still not enough funds, sell houses, then mortgage
                 for property in self.properties:
                     given_set = [prop for prop in self.properties if prop.set == property.set]
                     max_status = 2
@@ -133,7 +142,7 @@ class Player:
                                 if self.funds >= payment:
                                     break
                         max_status -= 0.25
-                    # if still not enough funds, mortgage
+                    # If still not enough funds, mortgage
                     for property in given_set:
                         self.funds += property.mortage(self)
                         if self.funds >= payment:
@@ -147,7 +156,16 @@ class Player:
                     owner.funds += payment
             else:
                 # If all properties mortgaged, return 'bancrupt'
-                print('bancrupt')
+                self.bankrupt = True
+                print(str(self.name)+' is bancrupt')
+                if owner:
+                    owner.properties.extend(self.properties)
+                    owner.funds += self.funds
+                else:
+                    for property in self.properties:
+                        property.status = 0
+                
+
             
 
 def build_house(self, property):
@@ -197,7 +215,6 @@ class Game:
             max_rent = max([prop.rent for prop in player.properties if isinstance(prop, Property) and prop.set != 'Utility'])
             self.players_rent.append([player.number, sum_rent, max_rent])
        
-
     def turn(self):
         for player in self.players:
             self.player_throws(player)
@@ -371,7 +388,6 @@ class Game:
                 given_player.properties.append(field_list[player.current_loc])
                 break
         
-
     def move(self, player, throw):
         ''' Move player on the board'''
         if player.current_loc + throw > 39:
