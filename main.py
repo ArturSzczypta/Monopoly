@@ -157,16 +157,16 @@ class Player:
             else:
                 # If all properties mortgaged, return 'bancrupt'
                 self.bankrupt = True
-                print(str(self.name)+' is bancrupt')
+                print('%s is bancrupt'.format(self.name))
                 if owner:
                     owner.properties.extend(self.properties)
                     owner.funds += self.funds
+                    for property in self.properties:
+                        property.owner = owner
                 else:
                     for property in self.properties:
                         property.status = 0
-                
-
-            
+                        property.owner = None
 
 def build_house(self, property):
     ''' Build house if strategy says so and it is possible'''
@@ -374,7 +374,7 @@ class Game:
         while True:
             bidders = len(self.players)
             for given_player in self.players:
-                temp_bid = given_player.auction(player.current_loc, current_bid)
+                temp_bid = given_player.auction(location, current_bid)
                 if temp_bid == 0:
                     bidders -= 1
                 else:
@@ -382,10 +382,10 @@ class Game:
             if bidders == 1:
                 break
         for given_player in self.players:
-            temp_bid = given_player.auction(player.current_loc, current_bid)
+            temp_bid = given_player.auction(location, current_bid)
             if temp_bid > 0:
                 given_player.pay(current_bid)
-                given_player.properties.append(field_list[player.current_loc])
+                given_player.properties.append(field_list[location])
                 break
         
     def move(self, player, throw):

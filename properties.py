@@ -17,10 +17,11 @@ class Property:
         self.houses_3 = houses_3
         self.houses_4 = houses_4
         self.hotel = hotel
-        self.variant = 0 # All: 0 - not full set, 1 - full set, -1 - morgaged
+        self.status = 0 # All: 0 - not full set, 1 - full set, -1 - morgaged
         # Station: 0 - 1 station, 0.33 - 2 stations, 0.67 - 3 stations, 1 - 4 stations
         # Utility: 0 - 1 utility, 1 - 2 utilities
         # Preperties: 1.25 - 1 house, 1.5 - 2 houses, 1.75 - 3 houses, 2 - 4 houses, 3 - hotel
+        self.owner = None
 
     def details(self):
         ''' Return all property attributes as a dictionary'''
@@ -43,16 +44,16 @@ class Property:
     
     def morgage(self, player):
         '''Morgage property if player has enough funds'''
-        if self.variant != -1:
-            self.variant = -1
+        if self.status != -1:
+            self.status = -1
             player.funds += self.mortgage
         else:
             player('unable to morgage')
     
     def unmorgage(self, player):
         '''Unmorgage property if player has enough funds'''
-        if self.variant == -1 and player.funds >= self.mortgage:
-            self.variant = 0
+        if self.status == -1 and player.funds >= self.mortgage:
+            self.status = 0
             player.funds -= self.mortgage
         else:
             print('unable to unmorgage')
@@ -60,36 +61,36 @@ class Property:
     def calculate_rent(self, dice_roll):
         '''Calculate rent for property'''
         if self.set == 'Station':
-            if self.variant == 0:
+            if self.status == 0:
                 self.rent = 25
-            elif self.variant == 0.33:
+            elif self.status == 0.33:
                 self.rent = 100
-            elif self.variant == 0.67:
+            elif self.status == 0.67:
                 self.rent = 150
-            elif self.variant == 1:
+            elif self.status == 1:
                 self.rent = 200
         elif self.set == 'Utility':
-            if self.variant == 0:
+            if self.status == 0:
                 self.rent = dice_roll * 4
-            elif self.variant == 1:
+            elif self.status == 1:
                 self.rent = dice_roll * 10
         else:
             # Streets
-            if self.variant == 0:
+            if self.status == 0:
                 self.rent = self.base_rent
-            elif self.variant == 1:
+            elif self.status == 1:
                 self.rent == self.base_rent * 2
-            elif self.variant == 1.25:
+            elif self.status == 1.25:
                 self.rent = self.house_1
-            elif self.variant == 1.5:
+            elif self.status == 1.5:
                 self.rent = self.houses_2
-            elif self.variant == 1.75:
+            elif self.status == 1.75:
                 self.rent = self.houses_3
-            elif self.variant == 2:
+            elif self.status == 2:
                 self.rent = self.houses_4
-            elif self.variant == 3:
+            elif self.status == 3:
                 self.rent = self.hotel
-        if self.variant == -1:
+        if self.status == -1:
                 self.rent = 0
 
 def field_list(dice_roll=None):
