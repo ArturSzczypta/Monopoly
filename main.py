@@ -39,6 +39,8 @@ class Player:
         self.properties = []
         self.house_count = 0
         self.hotels_count = 0
+        self.max_rent = 0
+
 
         self.out_of_jail_cards = {'chance': False, 'chest': False}
         self.turns_in_jail = 0
@@ -168,27 +170,36 @@ class Player:
                         property.status = 0
                         property.owner = None
 
-def build_house(self, property):
-    ''' Build house if strategy says so and it is possible'''
-    # decide if auction or fold
-    # auction = self.strategy.build_house(self.details, field_number, current_bid)
-    buying = True
-    if buying and self.funds >= property.buildinng_cost and houses > 0:
-        self.funds -= property.buildinng_cost
-        property.status += 0.25
-        houses -= 1
-        property.calculate_rent()
-    
-def build_hotel(self, property): 
-    ''' Build hotel if strategy says so and it is possible'''
-    # decide if auction or fold
-    # auction = self.strategy.build_hotel(self.details, field_number, current_bid)
-    buying = True
-    if buying and self.funds >= property.buildinng_cost and hotels > 0:
-        self.funds -= property.buildinng_cost
-        property.status += 0.25
-        hotels -= 1
-        property.calculate_rent()
+    def build_house(self, property):
+        ''' Build house if strategy says so and it is possible'''
+        # decide if auction or fold
+        # auction = self.strategy.build_house(self.details, field_number, current_bid)
+        buying = True
+        if buying and self.funds >= property.buildinng_cost and houses > 0:
+            self.funds -= property.buildinng_cost
+            property.status += 0.25
+            houses -= 1
+            self.house_count += 1
+            property.calculate_rent()
+        
+    def build_hotel(self, property): 
+        ''' Build hotel if strategy says so and it is possible'''
+        # decide if auction or fold
+        # auction = self.strategy.build_hotel(self.details, field_number, current_bid)
+        buying = True
+        if buying and self.funds >= property.buildinng_cost and hotels > 0:
+            self.funds -= property.buildinng_cost
+            property.status += 0.25
+            hotels -= 1
+            self.hotel_count += 1
+            property.calculate_rent()
+    def calc_sum_rent(self):
+        ''' Sum rent from all properties'''
+        self.sum_rent = sum([prop.rent for prop in self.properties if prop.set != 'Utility'])
+
+    def calc_max_rent(self):
+        ''' Max rent from all properties'''
+        self.max_rent = max([prop.rent for prop in self.properties if prop.set != 'Utility'])
 
 # Weights for strategy
 prop_weights = [1, 1, 1] * 6
@@ -209,13 +220,11 @@ class Game:
         self.prop_house = prop_house
         self.prop_hotel = prop_hotel
         self.turn = 0
-        self.players_rent = [] #0 - player, 1 - sum of rent, 2 - highest rent
-        for player in self.players:
-            sum_rent = sum([prop.rent for prop in player.properties if isinstance(prop, Property) and prop.set != 'Utility'])
-            max_rent = max([prop.rent for prop in player.properties if isinstance(prop, Property) and prop.set != 'Utility'])
-            self.players_rent.append([player.number, sum_rent, max_rent])
+        
        
     def turn(self):
+        ''' One turn of the game'''
+        self.turn += 1
         for player in self.players:
             self.player_throws(player)
 
@@ -232,6 +241,11 @@ class Game:
                     player.turns_in_jail = 0
                 else:
                     player.turns_in_jail += 1
+                    break
+            else:
+                player.pay(50)
+                player.turns_in_jail = 0
+                if player.bankrupt:
                     break
             self.move(player, throw[1])
             if throw[0] == True:
