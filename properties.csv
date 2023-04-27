@@ -4,9 +4,9 @@ number,names,set_name,in_set,price,mortgage,rent,buildinng_cost,house_1,houses_2
 6,The Angel Islington,Till,3,100,50,6,50,30,90,270,400,550
 8,Euston Road,Till,3,100,50,6,50,30,90,270,400,550
 9,Pentonville Road,Till,3,120,50,8,50,40,100,300,450,600
-11,Pall Mall,Magenta,3,140,100,10,100,50,150,450,625,750
-13,Whitehall,Magenta,3,140,100,10,100,50,150,450,625,750
-14,Northumberland Avenue,Magenta,3,160,100,12,100,60,180,500,700,900
+11,Pall Mall,Pink,3,140,100,10,100,50,150,450,625,750
+13,Whitehall,Pink,3,140,100,10,100,50,150,450,625,750
+14,Northumberland Avenue,Pink,3,160,100,12,100,60,180,500,700,900
 16,Bow Street,Orange,3,180,100,14,100,70,200,550,750,950
 18,Marlborough Street,Orange,3,180,100,14,100,70,200,550,750,950
 19,Vine Street,Orange,3,200,100,16,100,80,220,600,800,1000

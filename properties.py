@@ -76,7 +76,7 @@ class Property:
                 self.rent = dice_roll * 10
         else:
             # Streets
-            if self.status == 0:
+            if self.status > 0 and self.status < 1:
                 self.rent = self.base_rent
             elif self.status == 1:
                 self.rent == self.base_rent * 2

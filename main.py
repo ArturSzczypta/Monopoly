@@ -4,13 +4,13 @@ import numpy as np
 import random
 from properties import Property, field_list
 
-ITERATIONS = 10
-#how manu TURNS there is
-TURNS = 1
 PLAYERS = 5
 FUNDS = 2000
+ITERATIONS = 10
 houses = 32
 hotels = 12
+turn = 0
+
 
 #Supress scientific notation
 np.set_printoptions(suppress=True)
@@ -39,8 +39,9 @@ class Player:
         self.properties = []
         self.house_count = 0
         self.hotels_count = 0
-        self.max_rent = 0
 
+        self.sum_rent = 0
+        self.max_rent = 0
 
         self.out_of_jail_cards = {'chance': False, 'chest': False}
         self.turns_in_jail = 0
@@ -52,17 +53,14 @@ class Player:
         ''' Return all player attributes as a dictionary'''
         return vars(self)
         
-    def use_card(self):
+    def use_jail_card(self):
         ''' Use out of jail card if avaliable'''
         if self.out_of_jail_cards['chance']:
             self.out_of_jail_cards['chance'] = False
             free_jail_cards['chance'] = True
-            return True
         elif self.out_of_jail_cards['chest']:
             self.out_of_jail_cards['chest'] = False
             free_jail_cards['chest'] = True
-            return True
-        return False
 
     def buy_or_not(self):
         ''' Decide if buy or auction'''
@@ -152,7 +150,7 @@ class Player:
                 if all(property.status == -1 for property in self.properties):
                     break
             # Evaluate if there is enough funds
-            if self.funds > payment:
+            if self.funds >= payment:
                 self.funds -= payment
                 if owner:
                     owner.funds += payment
@@ -167,14 +165,14 @@ class Player:
                         property.owner = owner
                 else:
                     for property in self.properties:
-                        property.status = 0
                         property.owner = None
-
+                        # In future prepare auctions for mortgaged properties
+                        
     def build_house(self, property):
         ''' Build house if strategy says so and it is possible'''
         # decide if auction or fold
         # auction = self.strategy.build_house(self.details, field_number, current_bid)
-        buying = True
+        buying = True # for now
         if buying and self.funds >= property.buildinng_cost and houses > 0:
             self.funds -= property.buildinng_cost
             property.status += 0.25
@@ -186,13 +184,14 @@ class Player:
         ''' Build hotel if strategy says so and it is possible'''
         # decide if auction or fold
         # auction = self.strategy.build_hotel(self.details, field_number, current_bid)
-        buying = True
+        buying = True # for now
         if buying and self.funds >= property.buildinng_cost and hotels > 0:
             self.funds -= property.buildinng_cost
             property.status += 0.25
             hotels -= 1
             self.hotel_count += 1
             property.calculate_rent()
+
     def calc_sum_rent(self):
         ''' Sum rent from all properties'''
         self.sum_rent = sum([prop.rent for prop in self.properties if prop.set != 'Utility'])
@@ -202,26 +201,57 @@ class Player:
         self.max_rent = max([prop.rent for prop in self.properties if prop.set != 'Utility'])
 
 # Weights for strategy
+'''
+input:
+player
+other_players = player_list.pop(player)
+property
+
+max_rent = max([oponent.max_rent for oponent in other_players])
+sum_rent = sum([oponent.sum_rent for oponent in other_players])
+max_funds = max([oponent.funds for oponent in other_players])
+min_funds = min([oponent.funds for oponent in other_players])
+
+funds = player.funds
+property_current_rent = property.rent
+property_possible_rent = calculate_rent(property)
+
+def calculate_rent(self, property):
+    assumes itis not railroad or utility
+    if property.status == 1:
+        property_possible_rent = property.house_1
+    elif property.status == 1.25:
+        property_possible_rent = property.house_2
+    elif property.status == 1.5:
+        property_possible_rent = property.house_3
+    elif property.status == 1.75:
+        property_possible_rent = property.house_4
+    elif property.status == 2:
+        property_possible_rent = property.hotel
+    else:
+        property_possible_rent = property.rent
+
+sets = ['Brown', 'Till', 'Pink', 'Orange', 'Red', 'Yellow',
+'Green', 'Blue', 'Station', 'Utility']
+sets_weight = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+
 prop_weights = [1, 1, 1] * 6
 prop_auction = [1, 1, 1] * 6
 prop_house = [1, 1, 1] * 6
 prop_hotel = [1, 1, 1] * 6
 prop_bargain = [1, 1, 1] * 6
-                    
+'''
+
+ 
 
 free_jail_cards = {'chance': True, 'chest': True}
 class Game:
-    def __init__(self, players_count, start_funds, strategy, prop_weights, prop_auction, prop_house, prop_hotel):
+    def __init__(self, players_count, start_funds, strategy):
         self.players_count = players_count
         self.start_funds = start_funds
         self.players = [Player(num, start_funds, strategy) for num in range(1, players_count+1)]
-        self.prop_weights = prop_weights
-        self.prop_auction = prop_auction
-        self.prop_house = prop_house
-        self.prop_hotel = prop_hotel
         self.turn = 0
         
-       
     def turn(self):
         ''' One turn of the game'''
         self.turn += 1
@@ -241,6 +271,7 @@ class Game:
                     player.turns_in_jail = 0
                 else:
                     player.turns_in_jail += 1
+                    player.turns_in_jail_count += 1
                     break
             else:
                 player.pay(50)
@@ -255,6 +286,7 @@ class Game:
         if doubles_count == 3:
             player.current_loc = 10
             player.turns_in_jail = 1
+            player.turns_in_jail_count += 1
 
     def record_turn(self, file_name):
         ''' Saves deteils of the turn to file'''
@@ -297,6 +329,7 @@ class Game:
         elif card == 6:
             player.current_loc = 10
             player.turns_in_jail = 1
+            player.turns_in_jail_count += 1
             
         elif card == 7:
             player.current_loc -= 3
@@ -351,6 +384,7 @@ class Game:
         elif card == 2:
             player.current_loc = 10
             player.turns_in_jail = 1
+            player.turns_in_jail_count += 1
         elif card == 3:
             player.funds += 200
         elif card in range(4,7):
