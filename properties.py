@@ -79,7 +79,7 @@ class Property:
             if self.status > 0 and self.status < 1:
                 self.rent = self.base_rent
             elif self.status == 1:
-                self.rent == self.base_rent * 2
+                self.rent = self.base_rent * 2
             elif self.status == 1.25:
                 self.rent = self.house_1
             elif self.status == 1.5:
@@ -96,7 +96,7 @@ class Property:
 def field_list(dice_roll=None):
     '''Create list of all fields'''
     # Create list of 40 fields
-    fields = [None] * 40
+    fields = [] * 40
     fields[0] = 'Start'
     fields[10] = 'Jail'
     fields[20] = 'Free Parking'

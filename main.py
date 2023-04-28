@@ -2,7 +2,7 @@
 
 import numpy as np
 import random
-from properties import Property, field_list
+from properties import Property, fields
 
 PLAYERS = 5
 FUNDS = 2000
@@ -11,6 +11,7 @@ houses = 32
 hotels = 12
 turn = 0
 
+field_list = fields
 
 #Supress scientific notation
 np.set_printoptions(suppress=True)
@@ -37,7 +38,7 @@ class Player:
         self.bankrupt = False
 
         self.properties = []
-        self.house_count = 0
+        self.houses_count = 0
         self.hotels_count = 0
 
         self.sum_rent = 0
@@ -67,6 +68,7 @@ class Player:
         # buy = self.strategy.buy_or_not(self.details, player.current_loc)
         buy = True
         # in future checking funds will not be necessary
+        global field_list
         if buy and self.funds >= field_list[self.current_loc].price:
             self.funds -= field_list[self.current_loc].price
             self.properties.append(field_list[self.current_loc])
@@ -113,12 +115,16 @@ class Player:
                         if self.funds >= payment:
                             break
                 # If still not enough funds, sell hotels
+                global houses
+                global hotels
                 for property in self.properties:
                     if property.status == 3 and houses > 3:
                         self.funds += property.buildinng_cost / 2
                         property.status = 2
                         houses -= 4
+                        self.houses_count += 4
                         hotels += 1
+                        self.hotels_count -= 1
                         if self.funds >= payment:
                             break
                     # If there are not enough houses, each hotel is worth 5 houses
@@ -126,6 +132,7 @@ class Player:
                         self.funds += 5 * property.buildinng_cost / 2
                         property.status = 1
                         hotels += 1
+                        self.hotels_count -= 1
                         if self.funds >= payment:
                             break
 
@@ -139,6 +146,7 @@ class Player:
                                 self.funds += prop.buildinng_cost / 2
                                 prop.status -= 0.25
                                 houses += 1
+                                self.houses_count -= 1
                                 if self.funds >= payment:
                                     break
                         max_status -= 0.25
@@ -173,11 +181,12 @@ class Player:
         # decide if auction or fold
         # auction = self.strategy.build_house(self.details, field_number, current_bid)
         buying = True # for now
+        global houses
         if buying and self.funds >= property.buildinng_cost and houses > 0:
             self.funds -= property.buildinng_cost
             property.status += 0.25
             houses -= 1
-            self.house_count += 1
+            self.houses_count += 1
             property.calculate_rent()
         
     def build_hotel(self, property): 
@@ -185,11 +194,15 @@ class Player:
         # decide if auction or fold
         # auction = self.strategy.build_hotel(self.details, field_number, current_bid)
         buying = True # for now
+        global houses
+        global hotels
         if buying and self.funds >= property.buildinng_cost and hotels > 0:
             self.funds -= property.buildinng_cost
             property.status += 0.25
+            houses += 4
+            self.houses_count -= 4
             hotels -= 1
-            self.hotel_count += 1
+            self.hotels_count += 1
             property.calculate_rent()
 
     def calc_sum_rent(self):
@@ -252,7 +265,7 @@ class Game:
         self.players = [Player(num, start_funds, strategy) for num in range(1, players_count+1)]
         self.turn = 0
         
-    def turn(self):
+    def given_turn(self):
         ''' One turn of the game'''
         self.turn += 1
         for player in self.players:
@@ -291,8 +304,8 @@ class Game:
     def record_turn(self, file_name):
         ''' Saves deteils of the turn to file'''
         turn_details = {'turn': self.turn}
-        players = {player.details() for player in self.players}
-        turn_details = turn_details.update(players)
+        players_list = [player.details() for player in self.players]
+        turn_details = turn_details.update(players_list)
         with open(file_name, 'a', encoding='utf-8') as file:
             file.write(turn_details + '\n')
 
@@ -365,7 +378,7 @@ class Game:
                 player.funds += 50
         elif card == 15:
             #for each house pay 25, for hotels 100
-            payment = 25 * player.house_count + 100 * player.hotels_count
+            payment = 25 * player.houses_count + 100 * player.hotels_count
             player.pay(payment)
 
     #field 2,17,33
@@ -413,12 +426,13 @@ class Game:
                 player.funds += 10
         elif card == 16:
             #for each house pay 25, for hotels 100
-            payment = 40 * player.house_count + 115 * player.hotels_count
+            payment = 40 * player.houses_count + 115 * player.hotels_count
             player.pay(payment)
 
     def auctioning(self, location):
         ''' Auctioning property'''
         current_bid = 0
+        global field_list
         while True:
             bidders = len(self.players)
             for given_player in self.players:
@@ -438,6 +452,7 @@ class Game:
         
     def move(self, player, throw):
         ''' Move player on the board'''
+        global field_list
         if player.current_loc + throw > 39:
             player.funds += 200
             player.current_loc = (player.current_loc + throw) - 40
@@ -454,12 +469,10 @@ class Game:
             player.turns_in_jail = 1
         elif player.current_loc in (2, 17, 33):
             # Community Chest
-            player.chest_card(player)
-            self.move(player, throw)
+            self.chest_card(player)
         elif player.current_loc in (7, 22, 36):
             # Chance
-            player.chance_card(player)
-            self.move(player, throw)
+            self.chance_card(player)
         elif player.current_loc in (0, 10, 20):
             # Free Parking
             pass
