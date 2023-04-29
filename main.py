@@ -77,10 +77,11 @@ class Player:
             print('auction')
             return False
         
-    def auction(self, field_number, current_bid):
+    def auction(self, location, current_bid):
         ''' Decide if auction or fold'''
         # decide if auction or fold
-        # auction = self.strategy.auction(self.details, field_number, current_bid)
+        # auction = self.strategy.auction(self.details, location, current_bid)
+        loc = location
         auction = True
         if auction and self.funds >= current_bid + 10:
             return current_bid + 10
@@ -213,49 +214,6 @@ class Player:
         ''' Max rent from all properties'''
         self.max_rent = max([prop.rent for prop in self.properties if prop.set != 'Utility'])
 
-# Weights for strategy
-'''
-input:
-player
-other_players = player_list.pop(player)
-property
-
-max_rent = max([oponent.max_rent for oponent in other_players])
-sum_rent = sum([oponent.sum_rent for oponent in other_players])
-max_funds = max([oponent.funds for oponent in other_players])
-min_funds = min([oponent.funds for oponent in other_players])
-
-funds = player.funds
-property_current_rent = property.rent
-property_possible_rent = calculate_rent(property)
-
-def calculate_rent(self, property):
-    assumes itis not railroad or utility
-    if property.status == 1:
-        property_possible_rent = property.house_1
-    elif property.status == 1.25:
-        property_possible_rent = property.house_2
-    elif property.status == 1.5:
-        property_possible_rent = property.house_3
-    elif property.status == 1.75:
-        property_possible_rent = property.house_4
-    elif property.status == 2:
-        property_possible_rent = property.hotel
-    else:
-        property_possible_rent = property.rent
-
-sets = ['Brown', 'Till', 'Pink', 'Orange', 'Red', 'Yellow',
-'Green', 'Blue', 'Station', 'Utility']
-sets_weight = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
-prop_weights = [1, 1, 1] * 6
-prop_auction = [1, 1, 1] * 6
-prop_house = [1, 1, 1] * 6
-prop_hotel = [1, 1, 1] * 6
-prop_bargain = [1, 1, 1] * 6
-'''
-
- 
 
 free_jail_cards = {'chance': True, 'chest': True}
 class Game:
@@ -295,11 +253,7 @@ class Game:
             if throw[0] == True:
                 doubles_count += 1
             else:
-                break
-        if doubles_count == 3:
-            player.current_loc = 10
-            player.turns_in_jail = 1
-            player.turns_in_jail_count += 1
+                return doubles_count
 
     def record_turn(self, file_name):
         ''' Saves deteils of the turn to file'''
@@ -450,8 +404,8 @@ class Game:
                 given_player.properties.append(field_list[location])
                 break
         
-    def move(self, player, throw):
-        ''' Move player on the board'''
+    def landing(self, player, throw):
+        ''' Player landing on field'''
         global field_list
         if player.current_loc + throw > 39:
             player.funds += 200
@@ -486,11 +440,42 @@ class Game:
             for given_player in self.players:
                 if field_list[player.current_loc].owner == given_player.number:
                     player.pay(field_list[player.current_loc].rent)
+    
+    def players_turn(self, player):
+        ''' Player's turn'''
+        global field_list
+        # Deals with player throwing the dice, going to and going out of jail
+        doubles_count = 0
+        while doubles_count < 3:
+            throw = throw_dice()
+            if player.turns_in_jail in range(1,4):
+                if any(player.out_of_jail_cards.values()):
+                    player.use_jail_card()
+                    player.turns_in_jail = 0
+                elif throw[0] == True:
+                    player.turns_in_jail = 0
+                else:
+                    player.turns_in_jail += 1
+                    player.turns_in_jail_count += 1
+                    break
+            else:
+                player.pay(50)
+                player.turns_in_jail = 0
+                if player.bankrupt:
+                    self.bankrupcy(player)
+            self.landing(player, throw[1])
+            if throw[0] == True:
+                doubles_count += 1
+            else:
+                break
+        if doubles_count == 3:
+            player.current_loc = 10
+            player.turns_in_jail = 1
+            player.turns_in_jail_count += 1
+        else:
+            # find full sets in owned properties
+            print('i')
+            # Decide on buying houses and hotels
 
+            # Decide on proposing trade
             
-            
-
-            
-        
-
-        
